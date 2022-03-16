@@ -1,17 +1,14 @@
+#ifdef _WIN32
+#define CLEAR "cls"
+#else
+#define CLEAR "clear"
+#endif
 #include <iostream>
 #include <vector>
 #include <cstdlib>
 
 using namespace std;
 
-void clear_screen()
-{
-#ifdef _WIN32
-    system("cls");
-#else
-    system ("clear");
-#endif
-}
 
 class Carte{
 public:
@@ -77,7 +74,6 @@ public:
     void IntrareInCont(Utilizator& user);
     void AfisareCartiPentruImprumut();
     void ReturneazaCarte(Utilizator& user, int poz_in_lista);
-    void StergeCont(Utilizator& user);
     void ImprumutaCarte(Utilizator& user);
     int GetNrCarti();
     int GetNrUtilizatori();
@@ -226,7 +222,7 @@ istream& operator >> (istream& stream, Utilizator& user){
     cout<<"Parola:"<<endl;
     stream>>user.parola;
     stream.get();
-    clear_screen();
+    system(CLEAR);
     return stream;
 }
 
@@ -279,7 +275,7 @@ void Utilizator::SchimbaParola(){
     cout<<"Introduceti noua parola :"<<endl;
     cin>>parola_noua;
     this->SetParola(parola_noua);
-    clear_screen();
+    system(CLEAR);
     cout<< "Parola schimbata cu succes! "<<endl;
 
 }
@@ -384,7 +380,10 @@ BibliotecaOnline& BibliotecaOnline::operator+=( Carte& carte){
     this->bd_carti.push_back(carte);
   return (*this);
 }
-
+BibliotecaOnline& BibliotecaOnline::operator-=( Carte& carte){
+    this->StergeCarte(carte.GetNume(),carte.GetAutor());
+    return(*this);
+}
 //supraincarcarea operatori citire si scriere
 istream& operator >> (istream& stream, BibliotecaOnline& biblio){
     string nume_admin, parola_admin;
@@ -396,7 +395,7 @@ istream& operator >> (istream& stream, BibliotecaOnline& biblio){
     stream>>parola_admin;
     user.SetParola(parola_admin);
     stream.get();
-    clear_screen();
+    system(CLEAR);
     return stream;
 }
 
@@ -435,7 +434,7 @@ Utilizator* ptr=ExistaNumeUser(nume);
 if (ptr!=nullptr)
 {   cout<<"Introduceti parola:"<<endl;
     cin>>parola;
-    clear_screen();
+    system(CLEAR);
     cout<<"Parola introdusa...Verificare parola..."<<endl;
     if (ptr->VerificareParola(parola)){
 
@@ -489,7 +488,7 @@ void BibliotecaOnline::IntrareInCont(Utilizator& user){
                         this->BunVenit();
                     }
                     else {
-                        clear_screen();
+                        system(CLEAR);
                         cout<<"Va rog introduceti o comanda valida!"<<endl;
                         this->IntrareInCont(user);
                     }
@@ -506,7 +505,7 @@ void BibliotecaOnline::ReturneazaCarte(Utilizator& user, int poz_in_lista){
     else{
     if(int(user.carti_imprumutate.size()) > poz_in_lista && poz_in_lista>=0){
         user.carti_imprumutate.erase(user.carti_imprumutate.begin() + poz_in_lista);
-        clear_screen();
+        system(CLEAR);
         cout<<"Ai returnat cartea cu succes!"<<endl;
     }
     else {
@@ -546,14 +545,14 @@ void BibliotecaOnline::ImprumutaCarte(Utilizator& user){
     else{
         if (verif == true){
             user.carti_imprumutate.push_back(this->bd_carti[nr_carte]);
-            clear_screen();
+            system(CLEAR);
             cout<<"Felicitari! Ai imprumutat cartea ";
             cout<< this->bd_carti[nr_carte];
             cout<<endl;
             cout<<"Lectura placuta !"<<endl;
         }
         else {
-            clear_screen();
+            system(CLEAR);
             cout<< "Nu poti imprumuta cartea!"<<endl;
             cout<<"Ori ai imprumutat-o deja, ori ai deja mai mult de 3 carti sau suma paginilor depaseste 1000"<<endl;
             cout<<"Citeste intai cartile imprumutate sau returneaza o carte pentru a imprumuta alta"<<endl;
@@ -627,7 +626,7 @@ void BibliotecaOnline::AdaugaCarte(string nume_carte, string autor, int nr_pagin
 }
 
 void BibliotecaOnline::StergeCarte(string nume_carte, string autor){
-    //verific daca exista, caut dupa nume
+    //verific daca exista, caut dupa nume + autor
     vector<Carte>::iterator p;
     for(p=this->bd_carti.begin();p < this->bd_carti.end(); p++){
         if ((*p).GetNume()==nume_carte && (*p).GetAutor()==autor)
@@ -643,6 +642,7 @@ int main(){
 //
 
     BibliotecaOnline Biblioteca;
+    Biblioteca.AdaugaCarte("Amintiri din Copilarie","Ion Creanga", 147);
     Biblioteca.BunVenit();
 
 //practic ce e mai jos nu se executa niciodata pentru ca la comanda x in meniul programului se apeleaza exit(0);
