@@ -49,12 +49,14 @@ public:
     bool VerificareParola(string parola_introdusa);
     void SchimbaParola();
     bool PoateImprumutaCartea(Carte& carte);
-    vector<Carte> carti_imprumutate;
+    friend class BibliotecaOnline;
+    // am facut clasa bibliotecaonline clasa prietena- pentru ca biblioteca sa aiba acces la vectorul cu carti imprumutate
+    //si in acelasi timp sa nu fie nevoie sa fac data membru vector de carti imprumutate-publica
 
 private:
     string nume_utilizator;
     string parola;
-
+    vector<Carte> carti_imprumutate;
 };
 
 
