@@ -1,15 +1,20 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
-///TODO - destructor + constructor de copiere BibliotecaOnline si Utilizator
-///TODO - inca niste supraincarcari de operatori
-/// todo cand imprumut aceeasi carte intra iar in meniu de imprumut
 
 using namespace std;
 
+void clear_screen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system ("clear");
+#endif
+}
+
 class Carte{
 public:
-    ///constructori
     Carte();
     Carte(string nume, string autor, int nr_pagini);
     friend istream& operator >> (istream& stream, Carte& carte);
@@ -222,7 +227,7 @@ istream& operator >> (istream& stream, Utilizator& user){
     cout<<"Parola:"<<endl;
     stream>>user.parola;
     stream.get();
-    system("cls");
+    clear_screen();
     return stream;
 }
 
@@ -275,7 +280,7 @@ void Utilizator::SchimbaParola(){
     cout<<"Introduceti noua parola :"<<endl;
     cin>>parola_noua;
     this->SetParola(parola_noua);
-    system("cls");
+    clear_screen();
     cout<< "Parola schimbata cu succes! "<<endl;
 
 }
@@ -333,14 +338,13 @@ BibliotecaOnline::BibliotecaOnline(){
 
 }
 
-/*BibliotecaOnline::BibliotecaOnline(string user_admin, string parola_admin){
+BibliotecaOnline::BibliotecaOnline(string user_admin, string parola_admin){
 
     Utilizator admin(user_admin,parola_admin);
     this->bd_utilizatori.push_back(admin);
-    vector<Carte> bd_carti={};
 
 }
-*/
+
 
 //destructor
 BibliotecaOnline::~BibliotecaOnline(){
@@ -393,7 +397,7 @@ istream& operator >> (istream& stream, BibliotecaOnline& biblio){
     stream>>parola_admin;
     user.SetParola(parola_admin);
     stream.get();
-    system("cls");
+    clear_screen();
     return stream;
 }
 
@@ -432,7 +436,7 @@ Utilizator* ptr=ExistaNumeUser(nume);
 if (ptr!=nullptr)
 {   cout<<"Introduceti parola:"<<endl;
     cin>>parola;
-    system("cls");
+    clear_screen();
     cout<<"Parola introdusa...Verificare parola..."<<endl;
     if (ptr->VerificareParola(parola)){
 
@@ -486,7 +490,7 @@ void BibliotecaOnline::IntrareInCont(Utilizator& user){
                         this->BunVenit();
                     }
                     else {
-                        system("cls");
+                        clear_screen();
                         cout<<"Va rog introduceti o comanda valida!"<<endl;
                         this->IntrareInCont(user);
                     }
@@ -503,7 +507,7 @@ void BibliotecaOnline::ReturneazaCarte(Utilizator& user, int poz_in_lista){
     else{
     if(int(user.carti_imprumutate.size()) > poz_in_lista && poz_in_lista>=0){
         user.carti_imprumutate.erase(user.carti_imprumutate.begin() + poz_in_lista);
-        system("cls");
+        clear_screen();
         cout<<"Ai returnat cartea cu succes!"<<endl;
     }
     else {
@@ -543,14 +547,14 @@ void BibliotecaOnline::ImprumutaCarte(Utilizator& user){
     else{
         if (verif == true){
             user.carti_imprumutate.push_back(this->bd_carti[nr_carte]);
-            system("cls");
+            clear_screen();
             cout<<"Felicitari! Ai imprumutat cartea ";
             cout<< this->bd_carti[nr_carte];
             cout<<endl;
             cout<<"Lectura placuta !"<<endl;
         }
         else {
-            system("cls");
+            clear_screen();
             cout<< "Nu poti imprumuta cartea!"<<endl;
             cout<<"Ori ai imprumutat-o deja, ori ai deja mai mult de 3 carti sau suma paginilor depaseste 1000"<<endl;
             cout<<"Citeste intai cartile imprumutate sau returneaza o carte pentru a imprumuta alta"<<endl;
@@ -585,10 +589,11 @@ void BibliotecaOnline::CreareCont(){
     Utilizator* p = this->ExistaNumeUser(user.GetNumeUtilizator());
     if (p!=nullptr){
         cout<<"Numele exista deja! Alegeti alt nume!"<<endl;
+        this->CreareCont();
     }
-    else
+    else{
         this->bd_utilizatori.push_back(user);
-    {   cout<<"Contul a fost creat!";
+        cout<<"Contul a fost creat!";
         this->IntrareInCont(user);
     }
 }
