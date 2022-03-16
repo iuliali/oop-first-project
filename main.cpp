@@ -45,7 +45,6 @@ public:
     void SetNumeUtilizator(string nume_utilizator);
     string GetNumeUtilizator();
     void SetParola(string noua_parola);
-    //Carte* GetListaCartiImprumutate();
     friend istream& operator >> (istream& stream, Utilizator& user);
     friend ostream& operator << (ostream& o, Utilizator user);
     bool operator==( Utilizator& user);
@@ -74,7 +73,7 @@ public:
     void DateGresite();
     void IesireDinCont();
     void AdaugaCarte(string nume_carte, string autor, int nr_pagini);
-    void StergeCarte(Carte& carte);
+    void StergeCarte(string nume_carte, string autor);
     void IntrareInCont(Utilizator& user);
     void AfisareCartiPentruImprumut();
     void ReturneazaCarte(Utilizator& user, int poz_in_lista);
@@ -576,10 +575,6 @@ Utilizator* BibliotecaOnline::ExistaNumeUser(string nume){
     return nullptr;
 }
 
-void BibliotecaOnline::AdaugaCarte(string nume_carte, string autor, int nr_pagini){
-    Carte carte_de_adaugat(nume_carte,autor,nr_pagini);
-
-}
 
 void BibliotecaOnline::CreareCont(){
 
@@ -626,6 +621,21 @@ void BibliotecaOnline::BunVenit(){
     }
 }
 
+void BibliotecaOnline::AdaugaCarte(string nume_carte, string autor, int nr_pagini){
+    Carte carte_de_adaugat(nume_carte,autor,nr_pagini);
+    this->bd_carti.push_back(carte_de_adaugat);
+}
+
+void BibliotecaOnline::StergeCarte(string nume_carte, string autor){
+    //verific daca exista, caut dupa nume
+    vector<Carte>::iterator p;
+    for(p=this->bd_carti.begin();p < this->bd_carti.end(); p++){
+        if ((*p).GetNume()==nume_carte && (*p).GetAutor()==autor)
+            this->bd_carti.erase(p);
+    }
+}
+
+
 ///--------------------------------------------------------------
 
 int main(){
@@ -634,6 +644,15 @@ int main(){
 
     BibliotecaOnline Biblioteca;
     Biblioteca.BunVenit();
+
+//practic ce e mai jos nu se executa niciodata pentru ca la comanda x in meniul programului se apeleaza exit(0);
+//dar am adaugat pt a testa comentand ce e mai sus, functionalitatile constructorului BiblioteciiOnline parametrizat, metodele AdaugaCarte si StergeCarte si supraincarcarea operatorului de scriere
+    BibliotecaOnline Biblio2("iulia","iulia"); // daca folosesc constructorul parametrizat, imi adauga acest utilizator ca un prim utilizator si bd_carti nu va avea niciun element
+    Biblio2.AdaugaCarte("Amintiri din Copilarie","Ion Creanga", 147);
+    cout<<Biblio2;
+    Biblio2.StergeCarte("Amintiri din Copilarie","Ion Creanga");
+    cout<<Biblio2;
+
 
 
     return 0;
