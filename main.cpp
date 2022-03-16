@@ -1,6 +1,11 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+///TODO - destructor + constructor de copiere BibliotecaOnline si Utilizator
+///TODO - inca niste supraincarcari de operatori
+/// todo cand imprumut aceeasi carte intra iar in meniu de imprumut
+/// daca scriu 2 cand am o singura carte imi returneaza cartea!!! why
+
 
 using namespace std;
 
@@ -14,8 +19,8 @@ public:
 
     friend istream& operator >> (istream& stream, Carte& carte);
     friend ostream& operator << (ostream& o, Carte const &carte);
-    int operator+( Carte const &carte);
-
+    int operator+( vector<Carte>& carti);
+    bool operator==( Carte& carte);
     void SetNumeCarte(string nume);
     void SetAutorCarte(string autor);
     void SetDisponibilitate(bool disponibilitate);
@@ -44,7 +49,7 @@ public:
     string citite[100];
     vector<Carte> carti_imprumutate;
     Utilizator(string nume="",string parola_user="");
-    //~Utilizator();
+    ~Utilizator();
     void SetNumeUtilizator(string nume_utilizator);
     string GetNumeUtilizator();
     void SetParola(string noua_parola);
@@ -54,6 +59,7 @@ public:
     bool operator==( Utilizator& user);
     bool VerificareParola(string parola_introdusa);
     void SchimbaParola();
+    bool PoateImprumutaCartea(Carte& carte);
 
 
 private:
@@ -74,10 +80,11 @@ public:
     void StergeCarte();
     void IntrareInCont(Utilizator& user);
     void AfisareCartiPentruImprumut();
-    void ReturneazaCarte(Utilizator& user);
+    void ReturneazaCarte(Utilizator& user, int poz_in_lista);
     void StergeCont(Utilizator& user);
     void ImprumutaCarte(Utilizator& user);
     BibliotecaOnline();
+    BibliotecaOnline(string user_admin, string parola_admin);
 private:
     vector<Utilizator> bd_utilizatori{};
     vector<Carte> bd_carti;
@@ -89,6 +96,7 @@ Carte::Carte(string nume, string autor, int nr_pagini=100){
     this->nume_carte = nume;
     this->autor = autor;
     this->nr_pagini = nr_pagini;
+
 }
 
 istream& operator >> (istream& stream, Carte& carte){
@@ -96,7 +104,7 @@ istream& operator >> (istream& stream, Carte& carte){
     return stream;
 }
 
-ostream& operator << (ostream& o, Carte carte){
+ostream& operator << (ostream& o, Carte &carte){
     o<< carte.GetNume()<<" scrisa de "<< carte.GetAutor();
     return o;
 }
@@ -131,15 +139,38 @@ int Carte::GetNrPagini(){
 }
 
 
-int Carte::operator+( Carte& carte){
-    return this->GetNrPagini()+ carte.GetNrPagini();
+int Carte::operator+( vector<Carte>& carti){
+    vector<Carte>::iterator p;
+    int suma_pagini = 0;
+    for(p=carti.begin();p<carti.end(); p++){
+        suma_pagini += (*p).GetNrPagini();
+    }
+    suma_pagini += this->GetNrPagini();
+    return suma_pagini;
+}
+
+bool Carte::operator==( Carte& carte){
+    if(this->GetNume()== carte.GetNume())
+        return true;
+    else
+        return false;
 }
 
 
 Utilizator::Utilizator(string nume, string parola_user){
     this->nume_utilizator= nume;
     this->parola=parola_user;
+    vector<Carte> carti_imprumutate={};
+
 }
+
+Utilizator::~Utilizator(){
+/*    delete [] &this->carti_imprumutate;
+    delete this->citite;
+    delete this->nume_utilizator;
+    delete this->parola;*/
+}
+
 
 void Utilizator::SetNumeUtilizator(string nume_utilizator){
     this->nume_utilizator = nume_utilizator;
@@ -162,8 +193,21 @@ istream& operator >> (istream& stream, Utilizator& user){
     return stream;
 }
 
-ostream& operator << (ostream& o, Utilizator const &user){
-    ///todo
+ostream& operator << (ostream& o, Utilizator &user){
+    o<<"Nume utilizator: ";
+    o<<user.GetNumeUtilizator()<<endl;
+    o<<"Numar carti imprumutate :"<< user.carti_imprumutate.size()<<endl;
+    vector<Carte>::iterator p;
+    int k = 1;
+    for(p=user.carti_imprumutate.begin();p<user.carti_imprumutate.end(); p++){
+        o<<k<<" ";
+        k++;
+        o<< (*p);
+        o<<endl;
+    }
+
+
+    return o;
 }
 
 bool Utilizator::operator==( Utilizator& user){
@@ -185,25 +229,56 @@ void Utilizator::SchimbaParola(){
     cout<<"Introduceti noua parola :"<<endl;
     cin>>parola_noua;
     this->SetParola(parola_noua);
-    //system("cls");
+    system("cls");
     cout<< "Parola schimbata cu succes! "<<endl;
 
 }
+
+bool Utilizator::PoateImprumutaCartea(Carte& carte){
+     vector<Carte>::iterator p;
+     int nr_carti = this->carti_imprumutate.size();
+
+     for(p = this->carti_imprumutate.begin(); p < this->carti_imprumutate.end(); p++){
+        if((*p)==carte)
+        {
+            return false;
+        }
+
+    }
+
+    ///vreau sa verific si cate carti si daca suma paginilor e mai mare decat 1000;
+    if((nr_carti>=3) or (carte + this->carti_imprumutate >= 1000)){
+        return false;
+    }
+    return true;
+
+
+}
+
 
 void BibliotecaOnline::ImprumutaCarte(Utilizator& user){
     int nr_carte;
     cout<<"Alege nr. cartii pe care vrei sa o imprumuti: "<<endl;
     cin>> nr_carte;
     nr_carte --;
-    user.carti_imprumutate.push_back(this->bd_carti[nr_carte]);
-    cout<<"Felicitari! Ai imprumutat cartea ";
-    cout<< this->bd_carti[nr_carte];
-    cout<<endl;
-    cout<<"Lectura placuta !"<<endl;
+    bool verif = user.PoateImprumutaCartea(this->bd_carti[nr_carte]);
+    if (verif == true){
+        user.carti_imprumutate.push_back(this->bd_carti[nr_carte]);
+        cout<<"Felicitari! Ai imprumutat cartea ";
+        cout<< this->bd_carti[nr_carte];
+        cout<<endl;
+        cout<<"Lectura placuta !"<<endl;
+    }
+    else {
+        cout<< "Nu poti imprumuta cartea!";
+    }
+
+
     //system("cls");
     this->IntrareInCont(user);
 
 }
+
 
 
 BibliotecaOnline::BibliotecaOnline(){
@@ -233,6 +308,12 @@ BibliotecaOnline::BibliotecaOnline(){
 
 }
 
+BibliotecaOnline::BibliotecaOnline(string user_admin, string parola_admin){
+    Utilizator admin(user_admin,parola_admin);
+    this->bd_utilizatori.push_back(admin);
+    vector<Carte> bd_carti={};
+
+}
 void BibliotecaOnline::BunVenit(){
     string raspuns1;
     cout<<"Bine ati venit in Biblioteca Online!"<<endl;
@@ -299,12 +380,13 @@ if (ptr!=nullptr)
 }
 }
 void BibliotecaOnline::IntrareInCont(Utilizator& user){
-    int raspuns;
+    int raspuns,raspuns2;
     cout<<"Bun Venit In Biblioteca Ta Online!"<<endl;
     cout<<"Optiuni:"<<endl;
     cout<<"1 Imprumuta Carti"<<endl;
     cout<<"2 Schimba parola"<<endl;
-    cout<<"3 Iesi din cont"<<endl;
+    cout<<"3 Returneaza carte"<<endl;
+    cout<<"4 Iesi din cont"<<endl;
     cin>>raspuns;
     if (raspuns == 1)
     {
@@ -320,15 +402,45 @@ void BibliotecaOnline::IntrareInCont(Utilizator& user){
         else {
             if (raspuns == 3)
             {
-                this->BunVenit();
+                cout<<user;
+                cout<<"Alege o carte pentru a o returna"<<endl;
+                cin>> raspuns2;
+                this->ReturneazaCarte(user,raspuns2-1);
+                this->IntrareInCont(user);
             }
             else {
-                cout<<"Va rog introduceti o comanda valida!"<<endl;
-                this->IntrareInCont(user);
+                    if(raspuns == 4){
+                        this->BunVenit();
+                    }
+                    else {
+                        cout<<"Va rog introduceti o comanda valida!"<<endl;
+                        this->IntrareInCont(user);
+                    }
             }
         }
     }
 }
+
+void BibliotecaOnline::ReturneazaCarte(Utilizator& user, int poz_in_lista){
+    if (user.carti_imprumutate.size()==0)
+    {
+    cout<<"Nu ai imprumutat inca nicio carte!"<<endl;
+    }
+    else{
+    if(user.carti_imprumutate.size()>=poz_in_lista){
+        user.carti_imprumutate.erase(user.carti_imprumutate.begin()+ poz_in_lista);
+        cout<<"Ai returnat cartea cu succes!";
+    }
+    else {
+        ///todo
+        int rasp;
+        cout<<"Alege un nr valid!"<<endl;
+        cin>> rasp;
+        ReturneazaCarte(user,rasp-1);
+    }
+    }
+}
+
 
 void BibliotecaOnline::AfisareCartiPentruImprumut(){
     int k = bd_carti.size();
@@ -345,6 +457,7 @@ void BibliotecaOnline::AfisareCartiPentruImprumut(){
 void BibliotecaOnline::IesireDinCont(){
     this->BunVenit();
 }
+
 
 
 Utilizator* BibliotecaOnline::ExistaNumeUser(string nume){
@@ -368,8 +481,9 @@ void BibliotecaOnline::CreareCont(){
         cout<<"Numele exista deja! Alegeti alt nume!"<<endl;
     }
     else
+        this->bd_utilizatori.push_back(user);
     {   cout<<"Contul a fost creat!";
-        this->IntrareInCont(*p);
+        this->IntrareInCont(user);
     }
 }
 
