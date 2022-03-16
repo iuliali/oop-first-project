@@ -1,7 +1,7 @@
-# oop-first-project
-
-<p align="center"><img src="https://c.tenor.com/Wwq15dXEGskAAAAC/books-books-are-freedom.gif" width="200" height="200" /> <b>BIBLIOTECA ONLINE</b>
-<img src="https://bestanimations.com/media/reading/655989980sherlock-holmes-reading-book-animated-gif.gif" width="400" height="200" /></p>
+# BIBLIOTECA ONLINE (oop-first-project)
+<p align="center"><img src="https://c.tenor.com/Wwq15dXEGskAAAAC/books-books-are-freedom.gif" width="200" height="200" /> 
+<img src="https://bestanimations.com/media/reading/655989980sherlock-holmes-reading-book-animated-gif.gif" width="400" height="200" />
+</p>
 
 # **Scurta Prezentare**
 <i>
@@ -38,7 +38,7 @@ Pentru a vedea ce carti am imprumutat, putem sa mergem la comanda ```3 Returneaz
 De asemenea, putem returna <b>cate o carte odata.</b> <br>
 Putem schimba parola, apoi sa iesim din cont si sa vedem cum parola s-a schimbat, cartile imprumutate sunt salvate si le putem returna pentru a imprumuta altele. <br>
 
-><b>FLUX RECOMANDAT DE TESTARE:</b>
+><b>FLUX RECOMANDAT DE TESTARE: (hope it's not needed because I tried to make it user intuitive-I tried)</b><br>
 da->(scrie un nume inexistent de utilizator)ex: iulia <br>
 -> eroare ca nu exista utilizatorul <br>
 -> 1 pentru a te loga iar <br>
@@ -55,7 +55,7 @@ da->(scrie un nume inexistent de utilizator)ex: iulia <br>
 -> 1- returneaza o carte<br>
 -> 4 Iesi din cont<br>
 -> nu -> incearca sa creezi un cont nou tot cu numele admin (ca sa vezi ca nu poti)<br>
--> creeaza un alt cont cu user si ce parola vrei, imprumuta, carti, <b> have fun!</b> <br>
+-> creeaza un alt cont cu user si ce parola vrei, imprumuta carti, <b> have fun!</b> <br>
 
 >Future possible functionalities:
 
@@ -80,4 +80,7 @@ Programul va fi rula din terminal folosind urmatoarele comenzi:
 
 ```
 g++ -o main main.cpp
+```
+```
+./main
 ```
